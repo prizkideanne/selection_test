@@ -21,7 +21,7 @@ module.exports = {
       const user = await db.User.findOne({ where: { email } });
       const isValid = await bcrypt.compare(password, user.password);
       if (user && isValid) {
-        const token = jwt.sign({ id: db.User.id }, secretKey, {
+        const token = jwt.sign({ id: user.id }, secretKey, {
           expiresIn: "1hr",
         });
         res.status(200).send({
@@ -58,44 +58,29 @@ module.exports = {
 
       const accessToken = crypto.randomBytes(16).toString("hex");
 
-      const newEmployee = await db.User.create(
-        {
-          email,
-          role_id,
-          access_token: accessToken,
-        },
-        { transaction: t }
-      );
-      await t.commit();
-      await t.rollback();
+      const newEmployee = await db.User.create({
+        email,
+        role_id,
+        access_token: accessToken,
+      });
 
-      const newEmployeeSalary = await db.Salary.create(
-        {
-          basic_salary: salary,
-        },
-        { transaction: t }
-      );
-      await t.commit();
-      await t.rollback();
+      const newEmployeeSalary = await db.Salary.create({
+        basic_salary: salary,
+      });
 
-      const newEmployeeDetail = await db.Employee_detail.create(
-        {
-          full_name,
-          user_id: newEmployee.id,
-          salary_id: newEmployeeSalary.id,
-          birth_date: moment(birth_date).format("LL"),
-          join_date: moment(join_date).format("LL"),
-        },
-        { transaction: t }
-      );
-      await t.commit();
-      await t.rollback();
+      const newEmployeeDetail = await db.Employee_detail.create({
+        full_name,
+        user_id: newEmployee.id,
+        salary_id: newEmployeeSalary.id,
+        birth_date: moment(birth_date).format("YYYY-MM-DD HH:mm:ss"),
+        join_date: moment(join_date).format("YYYY-MM-DD HH:mm:ss"),
+      });
+
       res.status(200).send({
         message: "Success inserting employee data.",
         data: { newEmployee, newEmployeeDetail, newEmployeeSalary },
       });
     } catch (error) {
-      await t.rollback();
       console.log(error);
       res.status(500).send({ message: "Something wrong on server." });
     }
