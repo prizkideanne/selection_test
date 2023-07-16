@@ -49,7 +49,14 @@ module.exports = {
           .send({ message: "Please fill the email and password." });
       }
 
-      const user = await db.User.findOne({ where: { email } });
+      const user = await db.User.findOne({
+        where: { email },
+        include: [
+          {
+            model: db.Employee_detail,
+          },
+        ],
+      });
       if (!user) {
         res.status(401).send({
           message: "Invalid login credentials.",
@@ -62,12 +69,16 @@ module.exports = {
         const token = jwt.sign({ id: user.id }, secretKey, {
           expiresIn: "1hr",
         });
+        console.log("user", user.Employee_detail);
         res.status(200).send({
           message: "Login success!",
           data: {
             email: user.email,
             token: token,
             role: user.role_id,
+            name: user.Employee_detail
+              ? user.Employee_detail.full_name
+              : "Empty",
           },
         });
         return;

@@ -15,6 +15,7 @@ function TablesWithTitle({ title, subtitle, content, addUserHandler }) {
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <button
               type="button"
+              onClick={addUserHandler}
               className="block rounded-md bg-red-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
             >
               Add user
@@ -68,12 +69,14 @@ function TablesWithTitle({ title, subtitle, content, addUserHandler }) {
                       {person.email}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {person.joinDate}
+                      {person.joinDate !== "Empty"
+                        ? moment(person.joinDate).format("DD MMMM YYYY")
+                        : "Empty"}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {person.role}
                     </td>
-              
+
                     {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                       <a
                         href="#"
