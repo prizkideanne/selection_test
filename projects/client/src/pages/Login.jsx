@@ -2,6 +2,8 @@ import React from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Logo from "../components/Logo";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email Required"),
@@ -9,9 +11,20 @@ const LoginSchema = Yup.object().shape({
 });
 
 const LoginPage = () => {
-  const handleLogin = (values) => {
-    console.log("values", values);
+  const navigate = useNavigate();
+  const { login } = useAuth(); // Get the login function from the useAuth hook
+
+  const handleLogin = async (values, { setSubmitting }) => {
+    try {
+      await login(values.email, values.password); // Call the login function with the email and password
+      setSubmitting(false);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      setSubmitting(false);
+    }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg sm:p-6 lg:p-8">
@@ -19,10 +32,7 @@ const LoginPage = () => {
         <Formik
           initialValues={{ email: "", password: "" }}
           validationSchema={LoginSchema}
-          onSubmit={(values, { setSubmitting }) => {
-            handleLogin(values);
-            setSubmitting(false);
-          }}
+          onSubmit={handleLogin}
         >
           {({ isSubmitting }) => (
             <Form className="mt-8 space-y-6">

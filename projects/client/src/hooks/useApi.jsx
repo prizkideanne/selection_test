@@ -1,32 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import axios from "axios";
 
-export const useApi = (url, options) => {
+export const useApi = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const token = localStorage.getItem("accessToken");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem("accessToken");
-        const response = await fetch(url, {
-          ...options,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            ...options.headers,
-          },
-        });
-        const data = await response.json();
-        setData(data);
-        setIsLoading(false);
-      } catch (error) {
-        setError(error);
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [url, options]);
+  const fetchApi = async (url, method = "GET", body = null, headers = {}) => {
+    setIsLoading(true);
+    try {
+      const response = await axios({
+        url: "http://localhost:8000/" + url,
+        method,
+        headers: token
+          ? {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            }
+          : {},
+        data: body,
+      });
+      setData(response.data);
+      setIsLoading(false);
+      return response.data;
+    } catch (error) {
+      setError(error);
+      setIsLoading(false);
+      throw error;
+    }
+  };
 
-  return { data, error, isLoading };
+  return { data, error, isLoading, fetchApi };
 };

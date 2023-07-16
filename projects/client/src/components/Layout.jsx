@@ -4,13 +4,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "./Logo";
 import Footer from "./Footer";
 import { Link, useLocation } from "react-router-dom";
-
-const user = {
-  name: "Tom Cook",
-  email: "tom@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
+import { useAuth } from "../hooks/useAuth";
 
 const userNavigation = [{ name: "Sign out", href: "#" }];
 
@@ -19,27 +13,34 @@ function classNames(...classes) {
 }
 
 function Layout({ children }) {
+  const { logout, user } = useAuth();
   const { pathname } = useLocation();
-  const [navigation, setNavigation] = useState([
-    { name: "Live Attendance", href: "/", current: true },
-    { name: "Attendance History", href: "/history", current: false },
-    { name: "Payroll Reports", href: "/payroll", current: false },
-  ]);
-
+  const [navigation, setNavigation] = useState(
+    user.role === 2
+      ? [
+          { name: "Live Attendance", href: "/", current: true },
+          { name: "Attendance History", href: "/history", current: false },
+          { name: "Payroll Reports", href: "/payroll", current: false },
+        ]
+      : []
+  );
+  console.log("user", user);
   useEffect(() => {
-    const nav = navigation.map((item) => {
-      if (item.href === pathname) {
+    if (user.role === 2) {
+      const nav = navigation.map((item) => {
+        if (item.href === pathname) {
+          return {
+            ...item,
+            current: true,
+          };
+        }
         return {
           ...item,
-          current: true,
+          current: false,
         };
-      }
-      return {
-        ...item,
-        current: false,
-      };
-    });
-    setNavigation(nav);
+      });
+      setNavigation(nav);
+    }
   }, [pathname]);
 
   return (
@@ -82,7 +83,9 @@ function Layout({ children }) {
                         <span className="sr-only">Open user menu</span>
                         <img
                           className="h-8 w-8 rounded-full"
-                          src={user.imageUrl}
+                          src={
+                            "https://images.unsplash.com/photo-1687988999982-7bd925b9bdc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2003&q=80"
+                          }
                           alt=""
                         />
                       </Menu.Button>
@@ -100,15 +103,15 @@ function Layout({ children }) {
                         {userNavigation.map((item) => (
                           <Menu.Item key={item.name}>
                             {({ active }) => (
-                              <Link
-                                to={item.href}
+                              <button
+                                onClick={logout}
                                 className={classNames(
                                   active ? "bg-gray-100" : "",
-                                  "block px-4 py-2 text-sm text-gray-700"
+                                  "block px-4 py-2 text-sm text-gray-700 w-full text-left"
                                 )}
                               >
                                 {item.name}
-                              </Link>
+                              </button>
                             )}
                           </Menu.Item>
                         ))}
@@ -154,7 +157,9 @@ function Layout({ children }) {
                   <div className="flex-shrink-0">
                     <img
                       className="h-10 w-10 rounded-full"
-                      src={user.imageUrl}
+                      src={
+                        "https://images.unsplash.com/photo-1687988999982-7bd925b9bdc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2003&q=80"
+                      }
                       alt=""
                     />
                   </div>
@@ -171,9 +176,9 @@ function Layout({ children }) {
                   {userNavigation.map((item) => (
                     <Disclosure.Button
                       key={item.name}
-                      as="a"
-                      href={item.href}
-                      className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                      as="button"
+                      onClick={logout}
+                      className="block w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
                       {item.name}
                     </Disclosure.Button>

@@ -1,9 +1,18 @@
-import React from 'react'
+import React from "react";
+import TablesWithTitle from "../../components/TablesWithTitle";
 
 function AdminLandingPage() {
+  const addUser = () => {
+    console.log("add user");
+  };
   return (
-    <div>AdminLandingPage</div>
-  )
+    <TablesWithTitle
+      title={"Employee Directory"}
+      subtitle={"Comprehensive list of all employees in the organization"}
+      content={[]}
+      addUserHandler={addUser}
+    />
+  );
 }
 
-export default AdminLandingPage
+export default AdminLandingPage;
