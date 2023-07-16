@@ -58,7 +58,11 @@ const LoginGuard = () => {
 const ProtectedElement = () => {
   const { user, loading } = useAuth();
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex flex-1 w-full items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return user ? (

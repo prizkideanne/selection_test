@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import moment from "moment";
 import api from "../../api";
 import { useAuth } from "../../hooks/useAuth";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const EmployeeLandingPage = () => {
   const { user } = useAuth();
@@ -60,8 +61,8 @@ const EmployeeLandingPage = () => {
   };
 
   return isLoading ? (
-    <div>
-      <p>Loading...</p>
+    <div className="flex flex-1 w-full items-center justify-center">
+      <LoadingSpinner />
     </div>
   ) : (
     <div className="flex flex-col w-full bg-gray-50">
