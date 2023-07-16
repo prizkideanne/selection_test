@@ -18,5 +18,10 @@ router.get(
   authValidator.verifyToken,
   attendanceController.getTodayAttendance
 );
+router.get(
+  "/log",
+  authValidator.verifyToken,
+  attendanceController.getAttendaceLog
+);
 
 module.exports = router;
