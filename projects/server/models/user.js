@@ -22,6 +22,12 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         hooks: true,
       });
+      User.hasMany(models.Payroll, {
+        foreignKey: "user_id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        hooks: true,
+      });
     }
   }
   User.init(
