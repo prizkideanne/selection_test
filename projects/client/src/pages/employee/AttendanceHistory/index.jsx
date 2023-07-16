@@ -26,9 +26,8 @@ export default function AttendanceHistory() {
 
   useEffect(() => {
     api
-      .get(`attendance/log?page=${currentPage}&perPage=10&year=2023`)
+      .get(`attendance/log?page=${currentPage}&perPage=10`)
       .then(({ data }) => {
-        console.log("data", data.pagination.totalPage);
         setAttendances(data.data ? data.data : []);
         setTotalPage(data.pagination.totalPage);
       })
@@ -37,9 +36,8 @@ export default function AttendanceHistory() {
 
   const onClickNext = () => {
     api
-      .get(`attendance/log?page=${currentPage + 1}&perPage=10&year=2023`)
+      .get(`attendance/log?page=${currentPage + 1}&perPage=10`)
       .then(({ data }) => {
-        console.log("data", data);
         setCurrentPage(data.pagination.page);
       })
       .catch((err) => console.log(err));
@@ -47,9 +45,8 @@ export default function AttendanceHistory() {
 
   const onClickPrevious = () => {
     api
-      .get(`attendance/log?page=${currentPage - 1}&perPage=10&year=2023`)
+      .get(`attendance/log?page=${currentPage - 1}&perPage=10`)
       .then(({ data }) => {
-        console.log("data", data);
         setCurrentPage(data.pagination.page);
       })
       .catch((err) => console.log(err));

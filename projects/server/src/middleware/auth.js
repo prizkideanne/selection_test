@@ -61,13 +61,4 @@ module.exports = {
       }
     }
   },
-
-  async verifyAdmin(req, res, next) {
-    if (req.user.role_id) {
-      return next();
-    }
-    res.status(401).send({
-      message: "role is not allowed to access",
-    });
-  },
 };

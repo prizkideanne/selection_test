@@ -28,7 +28,7 @@ const SetPasswordPage = () => {
     console.log("values", values);
     try {
       await api
-        .post(`auth/setpassword?email=${email}&token=${token}`, {
+        .patch(`auth/setpassword?email=${email}&token=${token}`, {
           password: values.password,
         })
         .then(() => {

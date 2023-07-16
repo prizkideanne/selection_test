@@ -32,7 +32,10 @@ const EmployeeLandingPage = () => {
         setAttendanceToday({ ...attendances, message });
         setIsLoading(false);
       })
-      .catch((err) => console.log("err", err));
+      .catch((err) => {
+        console.log("err", err);
+        setIsLoading(false);
+      });
   };
 
   const handleClockIn = () => {
@@ -50,13 +53,15 @@ const EmployeeLandingPage = () => {
   };
 
   const getClockStatus = () => {
-    const { message, clock_in, clock_out } = attendanceToday;
-    if (!clock_in && !clock_out) {
-      return message;
-    } else if (!clock_out) {
-      return `Clocked in: ${moment(clock_in).format("LT")}`;
-    } else {
-      return `Clocked out: ${moment(clock_out).format("LT")}`;
+    if (attendanceToday) {
+      const { message, clock_in, clock_out } = attendanceToday;
+      if (!clock_in && !clock_out) {
+        return message;
+      } else if (!clock_out) {
+        return `Clocked in: ${moment(clock_in).format("LT")}`;
+      } else {
+        return `Clocked out: ${moment(clock_out).format("LT")}`;
+      }
     }
   };
 
@@ -72,15 +77,19 @@ const EmployeeLandingPage = () => {
             <div className="text-2xl font-bold text-white sm:text-3xl">
               Welcome, {user.name}
             </div>
-            <span
-              className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${
-                attendanceToday.clock_in && !attendanceToday.clock_out
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}
-            >
-              {getClockStatus()}
-            </span>
+            {attendanceToday && (
+              <span
+                className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${
+                  attendanceToday &&
+                  attendanceToday.clock_in &&
+                  !attendanceToday.clock_out
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {getClockStatus()}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex items-center justify-center">
@@ -92,7 +101,7 @@ const EmployeeLandingPage = () => {
                   {moment().format("dddd, DD MMMM YYYY")}
                 </span>
               </div>
-              {attendanceToday.clock_in ? (
+              {attendanceToday && attendanceToday.clock_in ? (
                 attendanceToday.clock_out ? (
                   <button
                     disabled

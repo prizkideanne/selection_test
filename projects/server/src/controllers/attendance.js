@@ -117,7 +117,7 @@ module.exports = {
       });
 
       if (!attendance) {
-        return res.status(404).json({
+        return res.status(200).json({
           message: "No attendance record found for today",
         });
       }
@@ -191,8 +191,9 @@ module.exports = {
       const totalPage = Math.ceil(pagination.totalData / pagination.perPage);
       pagination.totalPage = totalPage;
 
+      console.log("data", logs);
       if (pagination.totalData === 0) {
-        res.status(400).send({ message: "Attendace not found" });
+        res.status(400).send({ message: "Attendance not found" });
         return;
       }
 
