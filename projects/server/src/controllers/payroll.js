@@ -1,53 +1,46 @@
 const db = require("../../models");
+const moment = require("moment");
 
 module.exports = {
   async generatePayroll(req, res) {
-    const user_id = req.user.id;
     try {
-      const user = await db.User.findOne({
-        where: { id: user_id },
-        attributes: ["id", "email", "role_id"],
-        include: [
-          {
-            model: db.Employee_detail,
-            attributes: ["full_name"],
-            include: {
-              model: db.Salary,
-              attributes: ["basic_salary"],
-            },
-          },
-          {
-            model: db.Attendance,
-            attributes: ["clock_in", "clock_out"],
-          },
-        ],
+      const user_id = req.user.id;
+      const attendances = await db.Attendance.findAll({
+        where: { user_id: user_id },
       });
-      if (!user) {
-        return res.status(400).send({ message: "user not found" });
-      }
 
-      const salaryPerMonth = user.Employee_detail.Salary.basic_salary;
-      console.log(salaryPerMonth);
+      // assuming Employee_detail is connected to user with a 1-to-1 relationship
+      const employeeDetail = await db.Employee_detail.findOne({
+        where: { user_id: user_id },
+      });
+      const salary = await db.Salary.findOne({
+        where: { id: employeeDetail.salary_id },
+      });
 
-      const thisMonth = moment().month()
-      
-      function getWeekdaysInMonth(year, month) {
-        // Month in Moment.js is 0-based, so 9 is actually October.
-        let startDate = moment([year, month]);
+      const dailySalary = salary.basic_salary / 20; // calculate the daily salary
 
-        let monthDays = [];
-        while (startDate.month() === month) {
-          if (startDate.isoWeekday() <= 5) {
-            // 1-5 corresponds to Mon-Fri
-            monthDays.push(startDate.format("YYYY-MM-DD"));
-          }
-          startDate.add(1, "day");
+      let totalDeduction = 0;
+      attendances.forEach((a) => {
+        if (!a.clock_in && !a.clock_out) {
+          // Full day salary deduction
+          totalDeduction += dailySalary;
+        } else if (a.clock_in && !a.clock_out) {
+          // Half day salary deduction
+          totalDeduction += dailySalary / 2;
         }
+      });
 
-        return monthDays;
-      }
+      const totalSalary = salary.basic_salary - totalDeduction;
+      const endMonth = moment().endOf("month").format("YYYY-MM-DD HH:mm:ss");
 
-      res.status(200).send({ message: "success", data: user });
+      const payroll = await db.Payroll.create({
+        user_id: user_id,
+        total_deduction: totalDeduction,
+        total_salary: totalSalary,
+        paydate: endMonth,
+      });
+
+      res.status(200).json(payroll);
     } catch (error) {
       console.log(error), error;
       res.status(500).send({ message: "error on server" });
