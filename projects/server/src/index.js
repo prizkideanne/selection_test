@@ -19,6 +19,7 @@ app.use("/auth", routes.auth);
 
 app.use("/attendance", routes.attendance);
 
+app.use("/payroll", routes.payroll);
 // app.get("/api", (req, res) => {
 //   res.send(`Hello, this is my API`);
 // });

@@ -163,29 +163,55 @@ module.exports = {
     }
   },
   async setPassword(req, res) {
-    const { email, token } = req.query;
-    const { password } = req.body;
+    try {
+      const { email, token } = req.query;
+      const { password } = req.body;
 
-    // Validate inputs
-    if (!email || !token || !password) {
-      return res.status(400).send({ message: "Missing required parameters." });
+      // Validate inputs
+      if (!email || !token || !password) {
+        return res
+          .status(400)
+          .send({ message: "Missing required parameters." });
+      }
+
+      // Find the user
+      const user = await db.User.findOne({
+        where: { email: email, access_token: token },
+      });
+      if (!user) {
+        return res.status(404).send({ message: "User not found." });
+      }
+
+      // Hash the new password
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // Update the user's password and remove the access token
+      await db.User.update(
+        {
+          password: hashedPassword,
+          access_token: null,
+        },
+        {
+          where: { email: email, access_token: token },
+        }
+      );
+
+      const newUser = await db.User.findOne({
+        where: { email: email },
+        attributes: { exclude: ["id", "password", "access_token"] },
+        include: {
+          model: db.Employee_detail,
+          attributes: ["full_name", "birth_date"],
+        },
+      });
+
+      res
+        .status(200)
+        .send({ message: "Password updated successfully.", data: newUser });
+    } catch (error) {
+      console.log(error), error;
+      res.status(400).send({ message: "something wrong on server" });
     }
-
-    // Find the user
-    const user = await db.User.findOne({
-      where: { email, access_token: token },
-    });
-    if (!user) {
-      return res.status(404).send({ message: "User not found." });
-    }
-
-    // Hash the new password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Update the user's password and remove the access token
-    await user.update({ password: hashedPassword, access_token: null });
-
-    res.status(200).send({ message: "Password updated successfully." });
   },
 };
