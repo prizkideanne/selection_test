@@ -1,4 +1,4 @@
-# Purwadhika Final Project Repository
+# Selection Test Project Repository
 
 This is monorepo contain frontend project using ReactJS and backend project using ExpressJS.
 
