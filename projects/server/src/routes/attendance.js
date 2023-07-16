@@ -13,4 +13,10 @@ router.post(
   attendanceController.employeeClockOut
 );
 
+router.get(
+  "/log",
+  authValidator.verifyToken,
+  attendanceController.getAttendaceLog
+);
+
 module.exports = router;

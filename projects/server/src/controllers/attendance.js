@@ -104,9 +104,72 @@ module.exports = {
   async getAttendaceLog(req, res) {
     try {
       const user_id = req.user.id;
-      const { id } = req.params;
 
-      const myLog = await db.Attendance.findAll({ where: user_id });
-    } catch (error) {}
+      const pagination = {
+        page: Number(req.query.page) || 1,
+        perPage: Number(req.query.perPage) || 2,
+        month: req.query.month,
+        year: req.query.year,
+      };
+
+      const where = { user_id }; // initialize where clause with user_id
+
+      if (pagination.month) {
+        const startMonth = moment(pagination.month, "M")
+          .startOf("month")
+          .format("YYYY-MM-DD HH:mm:ss");
+        const endMonth = moment(pagination.month, "M")
+          .endOf("month")
+          .format("YYYY-MM-DD HH:mm:ss");
+
+        where.createdAt = {
+          [Op.between]: [startMonth, endMonth],
+        };
+      }
+
+      if (pagination.year) {
+        const startYear = moment(pagination.year, "YYYY")
+          .startOf("year")
+          .format("YYYY-MM-DD HH:mm:ss");
+        const endYear = moment(pagination.year, "YYYY")
+          .endOf("year")
+          .format("YYYY-MM-DD HH:mm:ss");
+
+        where.createdAt = {
+          [Op.between]: [startYear, endYear],
+        };
+      }
+
+      const logs = await db.Attendance.findAll({
+        where,
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
+      });
+
+      const countData = await db.Attendance.count({ where });
+      pagination.totalData = countData;
+      const totalPage = Math.ceil(pagination.totalData / pagination.perPage);
+      pagination.totalPage = totalPage;
+
+      if (pagination.totalData === 0) {
+        res.status(400).send({ message: "Attendace not found" });
+        return;
+      }
+
+      res.status(200).send({
+        message: "sukses",
+        pagination: {
+          page: pagination.page,
+          perPage: pagination.perPage,
+          totalData: pagination.totalData,
+          totalPage: pagination.totalPage,
+        },
+        data: logs,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ message: "error on server" });
+      error;
+    }
   },
 };
