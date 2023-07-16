@@ -3,7 +3,7 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "./Logo";
 import Footer from "./Footer";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 const userNavigation = [{ name: "Sign out", href: "#" }];
@@ -13,6 +13,7 @@ function classNames(...classes) {
 }
 
 function Layout({ children }) {
+  const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { pathname } = useLocation();
   const [navigation, setNavigation] = useState(
@@ -24,7 +25,6 @@ function Layout({ children }) {
         ]
       : []
   );
-  console.log("user", user);
   useEffect(() => {
     if (user.role === 2) {
       const nav = navigation.map((item) => {
@@ -83,9 +83,7 @@ function Layout({ children }) {
                         <span className="sr-only">Open user menu</span>
                         <img
                           className="h-8 w-8 rounded-full"
-                          src={
-                            "https://images.unsplash.com/photo-1687988999982-7bd925b9bdc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2003&q=80"
-                          }
+                          src={"https://ui-avatars.com/api/?name=" + user.name}
                           alt=""
                         />
                       </Menu.Button>
@@ -139,7 +137,7 @@ function Layout({ children }) {
                   <Disclosure.Button
                     key={item.name}
                     as="a"
-                    href={item.href}
+                    onClick={() => navigate(item.href)}
                     className={classNames(
                       item.current
                         ? "border-red-500 bg-red-50 text-red-700"
@@ -157,9 +155,7 @@ function Layout({ children }) {
                   <div className="flex-shrink-0">
                     <img
                       className="h-10 w-10 rounded-full"
-                      src={
-                        "https://images.unsplash.com/photo-1687988999982-7bd925b9bdc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2003&q=80"
-                      }
+                      src={"https://ui-avatars.com/api/?name=" + user.name}
                       alt=""
                     />
                   </div>

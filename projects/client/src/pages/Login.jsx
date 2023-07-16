@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import Logo from "../components/Logo";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email Required"),
@@ -17,6 +18,12 @@ const LoginPage = () => {
   const handleLogin = async (values, { setSubmitting }) => {
     try {
       await login(values.email, values.password); // Call the login function with the email and password
+      // await api.post("/login", values).then(({ data }) => {
+      //   if (data.token) {
+      //     localStorage.setItem("accessToken", data.token);
+      //     setUser(data); // This is just an example, replace with your actual user data
+      //   }
+      // });
       setSubmitting(false);
       navigate("/");
     } catch (error) {

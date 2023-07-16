@@ -11,10 +11,11 @@ import { ToastContainer } from "react-toastify";
 
 import Login from "./pages/Login";
 import EmployeeLandingPage from "./pages/employee/EmployeeLandingPage";
-import AdminLandingPage from "./pages/admin/AdminLandingPage";
-import AttendanceHistory from "./pages/employee/AttendanceHistory";
 import PayrollReports from "./pages/employee/PayrollReports";
 import SetPasswordPage from "./pages/SetPassword";
+import AttendanceHistory from "./pages/employee/AttendanceHistory";
+import AdminLandingPage from "./pages/admin";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
       <ToastContainer />
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<LoginGuard />} />
           <Route path="/setpassword" element={<SetPasswordPage />} />
           <Route path="/" element={<ProtectedElement />}>
             <Route index element={<LandingPage />} />
@@ -49,8 +50,21 @@ function App() {
   );
 }
 
-const ProtectedElement = () => {
+const LoginGuard = () => {
   const { user } = useAuth();
+  return user ? <Navigate to="/" /> : <Login />;
+};
+
+const ProtectedElement = () => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="flex flex-1 w-full items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   return user ? (
     <Layout>
       <Outlet />

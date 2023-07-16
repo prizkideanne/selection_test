@@ -101,6 +101,46 @@ module.exports = {
     }
   },
 
+  async getTodayAttendance(req, res) {
+    try {
+      const today = moment().startOf("day");
+      const tomorrow = moment(today).add(1, "days");
+
+      const attendance = await db.Attendance.findOne({
+        where: {
+          user_id: req.user.id,
+          clock_in: {
+            [Op.gte]: today.toDate(),
+            [Op.lt]: tomorrow.toDate(),
+          },
+        },
+      });
+
+      if (!attendance) {
+        return res.status(404).json({
+          message: "No attendance record found for today",
+        });
+      }
+
+      // Manually format the attendance data
+      const attendanceData = {
+        id: attendance.id,
+        clock_in: attendance.clock_in,
+        clock_out: attendance.clock_out,
+      };
+
+      res.status(200).json({
+        message: "Attendance record fetched successfully",
+        attendance: attendanceData,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({
+        message: "Internal server error",
+      });
+    }
+  },
+
   async getAttendaceLog(req, res) {
     try {
       const user_id = req.user.id;

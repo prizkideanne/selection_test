@@ -14,6 +14,11 @@ router.post(
 );
 
 router.get(
+  "/today",
+  authValidator.verifyToken,
+  attendanceController.getTodayAttendance
+);
+router.get(
   "/log",
   authValidator.verifyToken,
   attendanceController.getAttendaceLog

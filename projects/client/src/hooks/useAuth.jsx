@@ -1,60 +1,47 @@
-import React, { createContext, useContext, useState } from "react";
-import { useApi } from "./useApi";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import api from "../api";
 
 // Create a context for the auth state
 const AuthContext = createContext();
 
 // Create a provider component for the auth context
 export const AuthProvider = ({ children }) => {
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const { fetchApi } = useApi();
 
-  // const token = localStorage.getItem("accessToken");
-
-  // const getUserData = async () => {
-  //   if (token) {
-  //     const response = await fetchApi(`auth/loginWithToken`, "GET");
-  //     const { data } = await response;
-
-  //     if (data.token) {
-  //       localStorage.setItem("accessToken", data.token);
-  //       setUser(data);
-  //       return data;
-  //     }
-  //   }
-  // };
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (email, password) => {
-    // Perform your login logic here, e.g. send a request to your API
-    // If the login is successful, update the user state and store the access token in the localStorage
-    const response = await fetchApi(`auth/login`, "POST", {
-      email,
-      password,
+    await api.post(`auth/login`, { email, password }).then(({ data }) => {
+      const response = data.data;
+      console.log("response", response);
+      if (response.token) {
+        localStorage.setItem("accessToken", response.token);
+        localStorage.setItem("user", JSON.stringify(response));
+        setUser(response);
+      }
     });
-    const { data } = await response;
-    console.log(data);
-    if (data.token) {
-      localStorage.setItem("accessToken", data.token);
-      setUser(data); // This is just an example, replace with your actual user data
-    }
   };
 
   const logout = () => {
-    // Perform your logout logic here, e.g. clear the session data
-    // Then, update the user state and remove the access token from the localStorage
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
     setUser(null);
   };
 
-  // Provide the user state and auth methods to the context consumers
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Create a hook that uses the auth context
 export const useAuth = () => {
   return useContext(AuthContext);
 };
