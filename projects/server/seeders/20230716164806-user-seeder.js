@@ -1,25 +1,31 @@
 "use strict";
 const bcrypt = require("bcryptjs");
+const { faker } = require("@faker-js/faker");
+const moment = require("moment");
 
 const generatePassword = async (password) => {
   let salt = await bcrypt.genSalt(10);
   let hashedPassword = await bcrypt.hash(password, salt);
   return hashedPassword;
 };
-/** @type {import('sequelize-cli').Migration} */
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const pass = await generatePassword("Johndoe1!");
-    await queryInterface.bulkInsert("Users", [
-      {
-        email: "john@doe.com",
-        password: pass,
+    let usersData = [];
+    for (let i = 1; i < 30; i++) {
+      const hashedPassword = await generatePassword("Employee1!"); // Await the generatePassword function
+      const recent = faker.date.recent(); // Generate a random recent date
+      usersData.push({
+        id: i + 1,
+        email: faker.internet.email(),
+        password: hashedPassword,
         access_token: null,
         role_id: 2,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ]);
+        createdAt: recent,
+        updatedAt: recent,
+      });
+    }
+    await queryInterface.bulkInsert("Users", usersData, {});
   },
 
   down: async (queryInterface, Sequelize) => {

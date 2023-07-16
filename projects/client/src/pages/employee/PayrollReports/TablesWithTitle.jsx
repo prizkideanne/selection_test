@@ -35,6 +35,12 @@ function TablesWithTitle({ title, subtitle, content, addUserHandler }) {
                     scope="col"
                     className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                   >
+                    Base Salary
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                  >
                     Total Deduction
                   </th>
                   <th
@@ -53,6 +59,9 @@ function TablesWithTitle({ title, subtitle, content, addUserHandler }) {
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {moment(salary.payDate).format("DD MMMM YYYY")}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      Rp. {numeral(salary.baseSalary).format("0,0")}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       Rp. {numeral(salary.totalDeduction).format("0,0")}

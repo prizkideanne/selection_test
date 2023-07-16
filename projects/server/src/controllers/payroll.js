@@ -18,64 +18,54 @@ module.exports = {
         where: { id: employeeDetail.salary_id },
       });
 
-      const fullDayDeduction = salary.basic_salary * 0.05; // 5% of the monthly salary for a full day absence
-      const halfDayDeduction = salary.basic_salary * 0.025; // 2.5% of the monthly salary for a half day absence
+      const payrollByMonth = []; // Array to store payroll data for each month
 
-      let payrollByMonth = [];
-      let currentMonth = null;
-      let totalDeduction = 0;
+      for (let month = 1; month <= 12; month++) {
+        const monthName = moment()
+          .month(month - 1)
+          .format("MMMM");
+        const startOfMonth = moment()
+          .month(month - 1)
+          .startOf("month");
+        const endOfMonth = moment()
+          .month(month - 1)
+          .endOf("month");
 
-      for (const attendance of attendances) {
-        const month = moment(attendance.createdAt).format("MMMM");
-        if (month !== currentMonth) {
-          // New month, save last month's payroll
-          if (currentMonth !== null) {
-            const totalSalary = salary.basic_salary - totalDeduction;
-            const paydate = moment()
-              .month(currentMonth)
-              .endOf("month")
-              .format("YYYY-MM-DD HH:mm:ss");
-            await db.Payroll.create({
-              user_id: user_id,
-              total_deduction: totalDeduction,
-              total_salary: totalSalary,
-              paydate: paydate,
-            });
-            payrollByMonth.push({
-              month: currentMonth,
-              totalSalary: totalSalary,
-              totalDeduction: totalDeduction,
-              payDate: paydate,
-              userId: user_id,
-            });
+        const monthAttendances = attendances.filter((attendance) =>
+          moment(attendance.createdAt).isBetween(
+            startOfMonth,
+            endOfMonth,
+            null,
+            "[]"
+          )
+        );
+
+        const fullDayDeduction =
+          salary.basic_salary / moment(endOfMonth).daysInMonth(); // Deduction for a full day absence
+        const halfDayDeduction =
+          salary.basic_salary / (2 * moment(endOfMonth).daysInMonth()); // Deduction for a half day absence
+
+        let totalDeduction = 0;
+
+        for (const attendance of monthAttendances) {
+          if (!attendance.clock_in && !attendance.clock_out) {
+            // Full day salary deduction
+            totalDeduction += fullDayDeduction;
+          } else if (attendance.clock_in && !attendance.clock_out) {
+            // Half day salary deduction
+            totalDeduction += halfDayDeduction;
           }
-          // Reset for new month
-          currentMonth = month;
-          totalDeduction = 0;
         }
-        if (!attendance.clock_in && !attendance.clock_out) {
-          // Full day salary deduction
-          totalDeduction += fullDayDeduction;
-        } else if (attendance.clock_in && !attendance.clock_out) {
-          // Half day salary deduction
-          totalDeduction += halfDayDeduction;
-        }
-      }
-      // Save last month's payroll
-      if (currentMonth !== null) {
+
         const totalSalary = salary.basic_salary - totalDeduction;
         const paydate = moment()
-          .month(currentMonth)
+          .month(month - 1)
           .endOf("month")
           .format("YYYY-MM-DD HH:mm:ss");
-        await db.Payroll.create({
-          user_id: user_id,
-          total_deduction: totalDeduction,
-          total_salary: totalSalary,
-          paydate: paydate,
-        });
+
         payrollByMonth.push({
-          month: currentMonth,
+          month: monthName,
+          baseSalary: salary.basic_salary,
           totalSalary: totalSalary,
           totalDeduction: totalDeduction,
           payDate: paydate,
@@ -86,7 +76,7 @@ module.exports = {
       res.status(200).json(payrollByMonth);
     } catch (error) {
       console.log(error);
-      res.status(500).send({ message: "error on server" });
+      res.status(500).send({ message: "Error on server" });
     }
   },
 };

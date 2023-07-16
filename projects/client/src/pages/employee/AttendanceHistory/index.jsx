@@ -38,6 +38,7 @@ export default function AttendanceHistory() {
     api
       .get(`attendance/log?page=${currentPage + 1}&perPage=10`)
       .then(({ data }) => {
+        setAttendances(data.data);
         setCurrentPage(data.pagination.page);
       })
       .catch((err) => console.log(err));
@@ -47,6 +48,7 @@ export default function AttendanceHistory() {
     api
       .get(`attendance/log?page=${currentPage - 1}&perPage=10`)
       .then(({ data }) => {
+        setAttendances(data.data);
         setCurrentPage(data.pagination.page);
       })
       .catch((err) => console.log(err));

@@ -1,46 +1,52 @@
 "use strict";
-const { Op } = require("sequelize");
+const { faker } = require("@faker-js/faker");
+const moment = require("moment");
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Define the start and end dates
-    const startDate = new Date("2023-06-01");
-    const endDate = new Date("2023-06-30");
+    let attendanceData = [];
+    const totalUsers = 30;
+    const weekdaysPerUser = 20;
+    const monthArray = ["May", "June"]; // Months you want to generate data for
+    const recent = faker.date.recent(); // Generate a random recent date
 
-    // Prepare the data array
-    const attendances = [];
+    for (let i = 2; i <= totalUsers; i++) {
+      for (let month of monthArray) {
+        let date = moment().month(month).startOf("month");
+        let weekdaysCount = 0;
 
-    // Loop over the days of June
-    for (let day = startDate; day <= endDate; day.setDate(day.getDate() + 1)) {
-      // Check if the day is a weekday (Mon-Fri)
-      if (day.getDay() > 0 && day.getDay() < 6) {
-        // Push a new attendance into the data array
-        attendances.push({
-          user_id: 1,
-          clock_in: new Date(day.setHours(9, 0, 0, 0)), // Set the clock_in time to 9am
-          clock_out: new Date(day.setHours(17, 0, 0, 0)), // Set the clock_out time to 5pm
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
+        while (weekdaysCount < weekdaysPerUser) {
+          if (date.isoWeekday() <= 5) {
+            // 1-5 represents weekdays
+            let clockIn = moment(date).add(8, "hours").toDate(); // assuming work starts at 8AM
+            let clockOut = moment(date).add(17, "hours").toDate(); // assuming work ends at 5PM
+            const randomValue = Math.random();
+            if (randomValue < 0.5) {
+              // 10% chance for no clock_in and no clock_out
+              clockIn = null;
+              clockOut = null;
+            } else if (randomValue < 0.3) {
+              // 10% chance for no clock_out
+              clockOut = null;
+            }
 
-      // Stop if we have already 20 weekdays
-      if (attendances.length === 20) {
-        break;
+            attendanceData.push({
+              user_id: i,
+              clock_in: clockIn,
+              clock_out: clockOut,
+              createdAt: recent,
+              updatedAt: recent,
+            });
+            weekdaysCount++;
+          }
+          date.add(1, "days");
+        }
       }
     }
-
-    // Bulk insert the generated data
-    await queryInterface.bulkInsert("Attendances", attendances);
+    await queryInterface.bulkInsert("Attendances", attendanceData, {});
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete("Attendances", {
-      user_id: 1,
-      clock_in: {
-        [Op.between]: [new Date("2023-06-01"), new Date("2023-06-30")],
-      },
-    });
+    await queryInterface.bulkDelete("Attendances", null, {});
   },
 };

@@ -42,13 +42,19 @@ function TablesWithTitle({ title, subtitle, content, addUserHandler }) {
                 {content.map((person) => (
                   <tr key={person.clock_in + person.clock_out}>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {moment(person.clock_in).format("DD MMMM YYYY")}
+                      {person.clock_in
+                        ? moment(person.clock_in).format("dddd, DD MMMM YYYY")
+                        : "Absent"}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {moment(person.clock_in).format("h:mm a")}
+                      {person.clock_in
+                        ? moment(person.clock_in).format("h:mm a")
+                        : "Absent"}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {moment(person.clock_out).format("h:mm a")}
+                      {person.clock_out
+                        ? moment(person.clock_out).format("h:mm a")
+                        : "Absent"}
                     </td>
                   </tr>
                 ))}
