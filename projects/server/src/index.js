@@ -18,6 +18,7 @@ app.use(express.json());
 app.use("/auth", routes.auth);
 
 app.use("/attendance", routes.attendance);
+app.use("/admin", routes.admin);
 
 // app.get("/api", (req, res) => {
 //   res.send(`Hello, this is my API`);

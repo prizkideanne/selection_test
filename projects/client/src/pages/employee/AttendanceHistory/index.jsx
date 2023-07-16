@@ -1,4 +1,4 @@
-import TablesWithTitle from "../../components/TablesWithTitle";
+import TablesWithTitle from "./TablesWithTitle";
 
 const attendances = [
   {

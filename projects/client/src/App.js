@@ -11,10 +11,10 @@ import { ToastContainer } from "react-toastify";
 
 import Login from "./pages/Login";
 import EmployeeLandingPage from "./pages/employee/EmployeeLandingPage";
-import AdminLandingPage from "./pages/admin/AdminLandingPage";
-import AttendanceHistory from "./pages/employee/AttendanceHistory";
 import PayrollReports from "./pages/employee/PayrollReports";
 import SetPasswordPage from "./pages/SetPassword";
+import AttendanceHistory from "./pages/employee/AttendanceHistory";
+import AdminLandingPage from "./pages/admin";
 
 function App() {
   return (
