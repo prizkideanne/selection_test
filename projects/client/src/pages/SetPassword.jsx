@@ -3,8 +3,8 @@ import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Logo from "../components/Logo";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useApi } from "../hooks/useApi";
 import { toast } from "react-toastify";
+import api from "../api";
 
 const SetPasswordSchema = Yup.object().shape({
   password: Yup.string()
@@ -23,32 +23,29 @@ const SetPasswordPage = () => {
   const token = searchParams.get("token");
 
   const [showPassword, setShowPassword] = useState(false);
-  const { fetchApi } = useApi();
 
   const handleSetPassword = async (values) => {
     console.log("values", values);
     try {
-      const response = await fetchApi(
-        `auth/setpassword?email=${email}&token=${token}`,
-        "POST",
-        {
+      await api
+        .post(`auth/setpassword?email=${email}&token=${token}`, {
           password: values.password,
-        }
-      );
-      console.log(response);
-      toast("Password Set Successfully", {
-        delay: 200,
-        type: "success",
-      });
-      navigate("/login");
+        })
+        .then(() => {
+          toast("Password Set Successfully", {
+            delay: 200,
+            type: "success",
+          });
+          navigate("/login");
+        });
     } catch (error) {
       console.error(error);
       if (error.response) {
-        console.log("res", error.response.data.message);
         toast(error.response.data.message, {
           delay: 200,
           type: "error",
         });
+        navigate("/login");
       }
     }
   };

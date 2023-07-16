@@ -28,7 +28,6 @@ const EmployeeLandingPage = () => {
       .then(({ data }) => {
         const attendances = data.attendance;
         const message = data.message;
-        console.log("today", attendances, message);
         setAttendanceToday({ ...attendances, message });
         setIsLoading(false);
       })

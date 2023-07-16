@@ -1,16 +1,17 @@
+import { useEffect, useState } from "react";
 import TablesWithTitle from "./TablesWithTitle";
-
-const attendances = [
-  {
-    name: "Lindsay Walton",
-    email: "lindsay.walton@example.com",
-    date: new Date(),
-    clock_in: new Date(),
-    clock_out: new Date(),
-  },
-];
+import api from "../../../api";
 
 export default function AttendanceHistory() {
+  const [attendances, setAttendances] = useState([]);
+  useEffect(() => {
+    api
+      .get("attendance/log")
+      .then(({ data }) => {
+        setAttendances(data.data ? data.data : []);
+      })
+      .catch((err) => console.log("err", err));
+  }, []);
   return (
     <TablesWithTitle
       title={"Your Attendance Log"}
